@@ -1,27 +1,45 @@
-package ors
+package calculator
 
 default allow = false
 
-# Allow access if the user is an admin
+# Admin has access to all operations
 allow {
-  input.user.role == "admin"
+    input.role == "admin"
 }
 
-# Allow access for regular users if specific conditions are met
+# Normal user has access to only basic operations (add, subtract, multiply, divide)
 allow {
-  input.user.role != "admin"
-  valid_coordinates
-  input.payload.preference == "fastest"
+    input.role == "user"
+    input.operation == "add"
 }
 
-# Validate the coordinates
-valid_coordinates {
-  # Ensure that all coordinates meet the required conditions
-  count(input.payload.coordinates) == count({
-    coord |
-    coord = input.payload.coordinates[_]
-    # Check if longitude is greater than 78.0 and latitude is greater than 25.0
-    coord[0] > 74.0
-    coord[1] > 25.0
-  })
+allow {
+    input.role == "user"
+    input.operation == "subtract"
+}
+
+allow {
+    input.role == "user"
+    input.operation == "multiply"
+}
+
+allow {
+    input.role == "user"
+    input.operation == "divide"
+}
+
+# To-do list policies
+package todo
+
+default allow = false
+
+# Admin has access to add, update, delete tasks
+allow {
+    input.role == "admin"
+}
+
+# Normal user can only add tasks
+allow {
+    input.role == "user"
+    input.action == "add"
 }
